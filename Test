@@ -1,0 +1,165 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))() 
+
+local Window = Rayfield:CreateWindow({
+   Name = "Battlegrounds script universal Made by หีควยแตด🤡",
+   Icon = 0,
+   LoadingTitle = "Battlegrounds script universal",
+   LoadingSubtitle = "Script By Lunarplyr",
+   Theme = "DarkBlue",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "Arisa",
+      FileName = "Config"
+   },
+   KeySystem = true,
+   KeySettings = {
+      Title = "My Roblox profile 'Lunarplyr'",
+      Subtitle = "Key",
+      Note = "Key is on the YT",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"222554"}
+   }
+})
+
+local Tab = Window:CreateTab("Main😁", nil)
+local Section = Tab:CreateSection("Tp dot")
+
+local selectedTarget = nil
+local warpEnabled = false
+
+-- Generate player list
+local function updatePlayerList()
+   local players = game:GetService("Players"):GetPlayers()
+   local list = {}
+   for _, player in pairs(players) do
+      if player ~= game.Players.LocalPlayer then
+         table.insert(list, player.Name)
+      end
+   end
+   return list
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Dropdown = Tab:CreateDropdown({
+   Name = "Target Player",
+   Options = updatePlayerList(),
+   CurrentOption = {"Nil"},
+   MultipleOptions = false,
+   Flag = "Dropdown1",
+   Callback = function(Options)
+      selectedTarget = Options[1]
+   end,
+})
+
+local Toggle = Tab:CreateToggle({
+   Name = "Test tp dot ควย = dick",
+   CurrentValue = false,
+   Flag = "WarpToggle",
+   Callback = function(Value)
+      warpEnabled = Value
+
+      if not Value then
+         -- ✅ ป้องกัน error กล้อง
+         if LocalPlayer and LocalPlayer.Character then
+            local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then
+               Camera.CameraSubject = humanoid
+               Camera.CameraType = Enum.CameraType.Custom
+            end
+         end
+
+         -- ✅ ลบ highlight อย่างปลอดภัย
+         if selectedTarget and selectedTarget ~= "Nil" then
+            local targetPlayer = Players:FindFirstChild(selectedTarget)
+            if targetPlayer and targetPlayer.Character then
+               local highlight = targetPlayer.Character:FindFirstChild("Target_Highlight")
+               if highlight then
+                  highlight:Destroy()
+               end
+            end
+         end
+      end
+   end,
+})
+
+-- Warp Script
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+
+local function getBehindHalfCirclePosition(targetHRP)
+    local center = targetHRP.Position
+    local radius = math.random(4, 7)
+
+    -- สุ่มมุมในช่วง -90° ถึง 90° ด้านหลัง
+    local angle = math.rad(math.random(-90, 90))
+
+    -- แกนทิศของเป้าหมาย
+    local back = -targetHRP.CFrame.LookVector
+
+    -- สร้าง CFrame จากตำแหน่งเป้าหมายและหมุนรอบแกน Y
+    local rotated = CFrame.new(center, center + back) * CFrame.Angles(0, angle, 0)
+    local offset = rotated.LookVector * radius
+
+    local newPos = center + offset
+    return Vector3.new(newPos.X, center.Y, newPos.Z)
+end
+
+local function lookAtTarget(localChar, targetChar)
+	local root = localChar:FindFirstChild("HumanoidRootPart")
+	local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+	if root and targetRoot then
+		local targetPos = Vector3.new(targetRoot.Position.X, root.Position.Y, targetRoot.Position.Z)
+		root.CFrame = CFrame.new(root.Position, targetPos)
+	end
+end
+
+local function highlightTargetPlayer(targetPlayer)
+	if targetPlayer and targetPlayer.Character and not targetPlayer.Character:FindFirstChild("Target_Highlight") then
+		local highlight = Instance.new("Highlight")
+		highlight.Name = "Target_Highlight"
+		highlight.FillColor = Color3.fromRGB(255, 0, 0)
+		highlight.FillTransparency = 0.8
+		highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+		highlight.OutlineTransparency = 0
+		highlight.Adornee = targetPlayer.Character
+		highlight.Parent = targetPlayer.Character
+	end
+end
+
+RunService.Heartbeat:Connect(function()
+    if warpEnabled and selectedTarget then
+        local targetPlayer = Players:FindFirstChild(selectedTarget)
+        if targetPlayer and targetPlayer.Character and LocalPlayer.Character then
+            local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+            local localHRP = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+            if targetHRP and localHRP then
+                local newPos = getBehindHalfCirclePosition(targetHRP)
+                localHRP.CFrame = CFrame.new(newPos)
+                lookAtTarget(LocalPlayer.Character, targetPlayer.Character)
+
+                local head = targetPlayer.Character:FindFirstChild("Head")
+                if head then
+                    Camera.CameraSubject = head
+                    Camera.CameraType = Enum.CameraType.Attach
+                end
+
+                highlightTargetPlayer(targetPlayer)
+            end
+        end
+    end
+end)
